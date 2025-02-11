@@ -1,0 +1,90 @@
+.manager-dashboard {
+    padding: 1rem;
+    background-color: #f4f6f8;
+    font-family: Arial, sans-serif;
+  }
+  
+  .manager-dashboard header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .manager-dashboard header h2 {
+    margin: 0;
+    color: #333;
+  }
+
+  .dep-title{
+    font-weight: bold;
+    font-size: 20px;
+  }
+  
+  .manager-dashboard header button.logout {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .manager-dashboard header button.logout:hover {
+    background-color: #c0392b;
+  }
+  
+  .manager-dashboard p {
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .manager-dashboard h3 {
+    color: #333;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  
+  .manager-dashboard table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  
+  .manager-dashboard table th,
+  .manager-dashboard table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  
+  .manager-dashboard table th {
+    background-color: #3498db;
+    color: #fff;
+  }
+  
+  .manager-dashboard table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .manager-dashboard table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .manager-dashboard table button {
+    background-color: #2ecc71;
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .manager-dashboard table button:hover {
+    background-color: #27ae60;
+  }
+  

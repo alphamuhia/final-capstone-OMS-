@@ -1,0 +1,90 @@
+import React, { useState, useEffect } from "react";
+import "./styling/Signup.css"; 
+// import Navbar from "./Navbar";
+
+const Signup = () => {
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "employee",
+    department: "",
+  });
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/departments/")
+      .then((res) => res.json())
+      .then((data) => setDepartments(data))
+      .catch((err) => console.error("Error fetching departments:", err));
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetch("http://127.0.0.1:8000/api/register/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.id) {
+          alert("Signup successful! Await admin approval.");
+        } else {
+          alert("Signup failed: " + JSON.stringify(data));
+        }
+      })
+      .catch((err) => console.error("Error during signup:", err));
+  };
+
+  return (
+    <>
+      {/* <Navbar /> */}
+      <div className="signup">
+        <form onSubmit={handleSubmit}>
+          <h1>Signup</h1>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+            required
+          />
+          <select name="role" onChange={handleChange}>
+            <option value="employee">Employee</option>
+            <option value="manager">Manager</option>
+          </select>
+          <select name="department" onChange={handleChange} required>
+            <option value="">Select Department</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
+          </select>
+          <button type="submit">Sign Up</button>
+        </form>
+      </div>
+    </>
+  );
+};
+
+export default Signup;
