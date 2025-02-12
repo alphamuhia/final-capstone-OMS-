@@ -41,15 +41,15 @@ const EmployeeManagement = () => {
       .catch((err) => console.error("Error adding employee:", err));
   };
 
-  const handleDeleteEmployee = (employeeId) => {
+  const handleDeleteEmployee = (userid) => {
     if (!window.confirm("Are you sure you want to delete this employee?"))
       return;
-    fetch(`http://127.0.0.1:8000/api/employees/${employeeId}/`, {
+    fetch(`http://127.0.0.1:8000/api/user/${userid}/`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(() => {
-        setEmployees(employees.filter((emp) => emp.id !== employeeId));
+        setEmployees(employees.filter((emp) => emp.id !== userid));
       })
       .catch((err) => console.error("Error deleting employee:", err));
   };

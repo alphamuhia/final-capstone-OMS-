@@ -8,6 +8,12 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class User(AbstractUser):
     ROLE_CHOICES = [
@@ -19,8 +25,6 @@ class User(AbstractUser):
     email = models.EmailField(max_length=90, unique=True)
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, blank=True, null=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="users")
-    # role = models.CharField(max_length=20, choices=ROLE_CHOICES, blank=True, null=True)
-    # department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -31,21 +35,71 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
-class Employee(models.Model):
+    
+class EmployeeProfile(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('approved', 'Approved'),
     ]
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="employees", null=True, blank=True)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='employee_profile'
+    )
+    department = models.ForeignKey(
+        Department, 
+        on_delete=models.CASCADE, 
+        related_name="employees", 
+        null=True, 
+        blank=True
+    )
     role = models.CharField(max_length=50)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    full_name = models.CharField(max_length=255, blank=True, null=True)
+    id_number = models.CharField(max_length=50, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/', 
+        blank=True, 
+        null=True
+    )
 
     def __str__(self):
         return self.user.username
+
+# class Employee(models.Model):
+#     STATUS_CHOICES = [
+#         ('pending', 'Pending'),
+#         ('approved', 'Approved'),
+#     ]
+    
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     # department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
+#     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="employees", null=True, blank=True)
+#     role = models.CharField(max_length=50)
+#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+#     def __str__(self):
+#         return self.user.username
+
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(
+#         settings.AUTH_USER_MODEL, 
+#         on_delete=models.CASCADE, 
+#         related_name='profile'
+#     )
+#     full_name = models.CharField(max_length=255, blank=True, null=True)
+#     id_number = models.CharField(max_length=50, blank=True, null=True)
+#     address = models.TextField(blank=True, null=True)
+#     profile_picture = models.ImageField(
+#         upload_to='profile_pictures/', 
+#         blank=True, 
+#         null=True
+#     )
+
+#     def __str__(self):
+#         return f"{self.user.username}'s profile"
 
 class Task(models.Model):
     STATUS_CHOICES = [

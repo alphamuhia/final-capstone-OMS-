@@ -5,7 +5,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import EmployeeDashboard from "./components/EmployeeDashboard";
 import EmployeeManagement from "./components/EmployeeManagement";
 import DepartmentManagement from "./components/DepartmentManagement";
-import PayrollManagement from "./components/PayrollManagement";
+// import PayrollManagement from "./components/PayrollManagement";
 // import PaymentTracking from "./components/PaymentTracking";
 import Reporting from "./components/Reporting";
 import NotificationsAlerts from "./components/NotificationsAlerts";
@@ -17,6 +17,10 @@ import Employee from "./components/Employee";
 import ManageDepartments from "./components/ManageDepartments";
 import Salary from "./components/Salary";
 import AttendanceTable from "./components/AttendanceTable";
+import EditUpdateProfile from "./components/EditUpdateProfile";
+import AddPayroll from "./components/AddPayroll";
+import PayrollHistory from "./components/PayrollHistory";
+import PendingApprovalsCard from "./components/PendingAprovals";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("access_token");
@@ -46,7 +50,7 @@ function App() {
         {/* Protected Routes */}
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
         <Route path="/employee-management" element={<ProtectedRoute><EmployeeManagement /></ProtectedRoute>} />
-        <Route path="/payroll" element={<ProtectedRoute><PayrollManagement /></ProtectedRoute>} />
+        {/* <Route path="/payroll" element={<ProtectedRoute><PayrollManagement /></ProtectedRoute>} /> */}
         <Route path="/manager" element={<ProtectedRoute><ManagerDashboard /></ProtectedRoute>} />
         <Route path="/employee" element={<ProtectedRoute><EmployeeDashboard /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><NotificationsAlerts /></ProtectedRoute>} />
@@ -56,6 +60,10 @@ function App() {
         <Route path="/departments" element={<ProtectedRoute><DepartmentManagement /></ProtectedRoute>} />
         <Route path="/salary" element={<ProtectedRoute><Salary /></ProtectedRoute>} />
         <Route path="/attendance" element={<ProtectedRoute><AttendanceTable /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><EditUpdateProfile /></ProtectedRoute>} />
+        <Route path="/payroll" element={<ProtectedRoute><AddPayroll /></ProtectedRoute>} />
+        <Route path="/payhistory" element={<ProtectedRoute><PayrollHistory /></ProtectedRoute>} />
+        <Route path="/approvals" element={<ProtectedRoute><PendingApprovalsCard /></ProtectedRoute>} />
 
       </Routes>
     </Router>

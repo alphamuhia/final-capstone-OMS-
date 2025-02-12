@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./styling/PayrollManagement.css"; 
 
 const PayrollManagement = () => {
@@ -12,17 +11,18 @@ const PayrollManagement = () => {
   const [payday, setPayday] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  // New state to handle editing mode
   const [isEditing, setIsEditing] = useState(false);
   const [editingPayrollId, setEditingPayrollId] = useState(null);
 
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // Fetch payroll records from the API and save them to state and local storage
   const fetchPayrolls = () => {
-    fetch("http://127.0.0.1:8000/api/admin/payrolls/", {
-      headers: { Authorization: `Bearer ${token}` },
+    fetch("http://127.0.0.1:8000/api/payrolls/", {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+     },
     })
       .then((res) => {
         if (!res.ok) {
@@ -37,7 +37,6 @@ const PayrollManagement = () => {
       .catch((err) => console.error("Error fetching payrolls:", err));
   };
 
-  // Fetch employee list from the API
   const fetchEmployees = () => {
     fetch("http://127.0.0.1:8000/api/users/", {
       method: "GET",
@@ -72,13 +71,12 @@ const PayrollManagement = () => {
       notes: notes,
     };
 
-    // If editing, update the existing payroll
     if (isEditing) {
-      fetch(`http://127.0.0.1:8000/api/admin/payrolls/${editingPayrollId}/`, {
-        method: "PATCH", // Use PUT if your API expects a full update
+      fetch(`http://127.0.0.1:8000/api/payrolls/${editingPayrollId}/`, {
+        method: "PATCH", 
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       })
@@ -89,7 +87,6 @@ const PayrollManagement = () => {
           return res.json();
         })
         .then((data) => {
-          // Update the payrolls state by replacing the edited payroll
           const updatedPayrolls = payrolls.map((payroll) =>
             payroll.id === editingPayrollId ? data : payroll
           );
@@ -103,8 +100,7 @@ const PayrollManagement = () => {
           setSubmitting(false);
         });
     } else {
-      // Otherwise, create a new payroll entry
-      fetch("http://127.0.0.1:8000/api/admin/payrolls/", {
+      fetch("http://127.0.0.1:8000/api/payrolls/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -133,9 +129,8 @@ const PayrollManagement = () => {
     }
   };
 
-  // Pre-populate form with payroll data for editing
   const handleEdit = (payroll) => {
-    setSelectedEmployee(payroll.user); // Adjust as needed if payroll.user is an object or just an ID
+    setSelectedEmployee(payroll.user);
     setPaymentMethod(payroll.payment_method);
     setAmount(payroll.salary);
     setPayday(payroll.payday);
@@ -144,7 +139,6 @@ const PayrollManagement = () => {
     setEditingPayrollId(payroll.id);
   };
 
-  // Reset the form and editing state
   const resetForm = () => {
     setSelectedEmployee("");
     setPaymentMethod("direct_deposit");
@@ -155,7 +149,6 @@ const PayrollManagement = () => {
     setEditingPayrollId(null);
   };
 
-  // Cancel editing and clear the form
   const handleCancelEdit = () => {
     resetForm();
   };
@@ -258,6 +251,43 @@ const PayrollManagement = () => {
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Payment History Table */}
+      <h2>Payment History</h2>
+      {payrolls.length === 0 ? (
+        <p>No payment history found.</p>
+      ) : (
+        <table className="payment-history-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Payment Method</th>
+              <th>Amount</th>
+              <th>Payday</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {payrolls.map((payroll) => {
+              // Find the corresponding employee object
+              const employee = employees.find((emp) => emp.id === payroll.user);
+              return (
+                <tr key={payroll.id}>
+                  <td>{payroll.id}</td>
+                  <td>{employee ? employee.username : payroll.user}</td>
+                  <td>{employee && employee.department ? employee.department.name : "N/A"}</td>
+                  <td>{payroll.payment_method}</td>
+                  <td>{payroll.salary}</td>
+                  <td>{payroll.payday}</td>
+                  <td>{payroll.notes}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       )}
     </div>
   );

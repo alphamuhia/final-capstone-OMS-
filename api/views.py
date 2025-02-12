@@ -8,7 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, IsAuthenticated
-from .models import Department, Task, Notification, Message, Employee, User, Payroll, Salary, Attendance, LeaveRequest, AdvancePaymentRequest
+from .models import Department, Task, Notification, Message, Role, EmployeeProfile, User, Payroll, Salary, Attendance, LeaveRequest, AdvancePaymentRequest
 from .permissions import IsAdmin, IsManager, IsEmployee
 from rest_framework import status, viewsets
 from django.db.models import Count, Case, When
@@ -25,7 +25,10 @@ from .serializers import (
     PayrollSerializer,
     SalarySerializer,
     LeaveRequestSerializer,
-    AdvancePaymentRequestSerializer
+    AdvancePaymentRequestSerializer,
+    EmployeeProfileSerializer,
+    UserSerializer,
+    RoleSerializer
 )
 
 User = get_user_model()
@@ -36,24 +39,177 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
+@permission_classes([AllowAny])
+class RoleViewSet(viewsets.ModelViewSet):
+    """
+    A viewset that provides the standard actions for Role
+    """
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    A viewset that provides the standard actions for User.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
 # Users
 
-@api_view(['GET'])
-@permission_classes([AllowAny]) 
-def user_list(request, user_id=None): 
+# @api_view(['GET'])
+# @permission_classes([AllowAny]) 
+# def user_list(request, user_id=None): 
     
-    if request.method != "GET":
-        return Response({"error": "Invalid request method"}, status=405)
+#     if request.method != "GET":
+#         return Response({"error": "Invalid request method"}, status=405)
 
-    if user_id:  
-        try:
-            user = User.objects.get(id=user_id, is_superuser=False)
-            return Response({"id": user.id, "username": user.username, "is_approved": user.is_approved})
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=404)
+#     if user_id:  
+#         try:
+#             user = User.objects.get(id=user_id, is_superuser=False)
+#             return Response({"id": user.id, "username": user.username, "is_approved": user.is_approved})
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found"}, status=404)
     
-    users = User.objects.filter(is_superuser=False).values("id", "username", "department","role", "is_approved")
-    return Response(list(users))
+#     users = User.objects.filter(is_superuser=False).values("id", "username", "department","role", "is_approved")
+#     return Response(list(users))
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@permission_classes([AllowAny])
+def user_list(request, user_id=None):
+    
+    if user_id is None:
+        if request.method != "GET":
+            return Response({"error": "Invalid request method for list view."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+        # Using .values() here automatically returns the department id if it's a ForeignKey.
+        users = User.objects.filter(is_superuser=False).values("id", "username", "department", "role", "is_approved")
+        return Response(list(users))
+    
+    try:
+        user = User.objects.get(id=user_id, is_superuser=False)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == "GET":
+        data = {
+            "id": user.id,
+            "username": user.username,
+            "department": user.department.id if user.department else None,  # Fixed here
+            "role": user.role,
+            "is_approved": user.is_approved
+        }
+        return Response(data)
+    
+    elif request.method in ["PUT", "PATCH"]:
+        data = request.data
+        if "username" in data:
+            user.username = data["username"]
+        if "department" in data:
+            # Here you might need to convert the department id from the request to a Department instance.
+            user.department_id = data["department"] 
+        if "role" in data:
+            user.role = data["role"]
+        if "is_approved" in data:
+            user.is_approved = data["is_approved"]
+        
+        user.save()
+        
+        updated_data = {
+            "id": user.id,
+            "username": user.username,
+            "department": user.department.id if user.department else None,  # Fixed here as well
+            "role": user.role,
+            "is_approved": user.is_approved
+        }
+        return Response(updated_data)
+    
+    elif request.method == "DELETE":
+        user.delete()
+        return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# @api_view(['GET', 'POST'])
+# @permission_classes([AllowAny])
+# def user_list(request):
+#     """
+#     GET: List all non-superuser users.
+#     POST: Create a new user.
+#     """
+#     if request.method == 'GET':
+#         users = User.objects.filter(is_superuser=False).values(
+#             "id", "username", "department", "role", "is_approved"
+#         )
+#         return Response(list(users))
+    
+#     elif request.method == 'POST':
+#         data = request.data
+#         try:
+#             user = User.objects.create(
+#                 username=data.get("username"),
+#                 department=data.get("department"), 
+#                 role=data.get("role"),
+#                 is_approved=data.get("is_approved", False)
+#             )
+#             response_data = {
+#                 "id": user.id,
+#                 "username": user.username,
+#                 "department": user.department,
+#                 "role": user.role,
+#                 "is_approved": user.is_approved,
+#             }
+#             return Response(response_data, status=status.HTTP_201_CREATED)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+# @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+# @permission_classes([AllowAny])
+# def user_detail(request, user_id):
+#     """
+#     GET: Retrieve a specific user’s details.
+#     PUT/PATCH: Update a specific user’s details.
+#     DELETE: Delete a specific user.
+#     """
+#     try:
+#         user = User.objects.get(id=user_id, is_superuser=False)
+#     except User.DoesNotExist:
+#         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+#     if request.method == 'GET':
+#         data = {
+#             "id": user.id,
+#             "username": user.username,
+#             "department": user.department,
+#             "role": user.role,
+#             "is_approved": user.is_approved,
+#         }
+#         return Response(data)
+    
+#     elif request.method in ["PUT", "PATCH"]:
+#         data = request.data
+#         if "username" in data:
+#             user.username = data["username"]
+#         if "department" in data:
+#             user.department = data["department"]
+#         if "role" in data:
+#             user.role = data["role"]
+#         if "is_approved" in data:
+#             user.is_approved = data["is_approved"]
+        
+#         user.save()
+        
+#         updated_data = {
+#             "id": user.id,
+#             "username": user.username,
+#             "department": user.department,
+#             "role": user.role,
+#             "is_approved": user.is_approved,
+#         }
+#         return Response(updated_data)
+    
+#     elif request.method == 'DELETE':
+#         user.delete()
+#         return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -138,24 +294,24 @@ class ApproveUserView(APIView):
 
 
 # EmployeeProfile view API
-class EmployeeProfileView(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee] 
+# class EmployeeProfileView(APIView):
+#     permission_classes = [IsAuthenticated, IsEmployee] 
 
-    def get(self, request):
+#     def get(self, request):
 
-        user_profile = Employee.objects.get(user=request.user)
+#         user_profile = Employee.objects.get(user=request.user)
 
-        approved_users = Employee.objects.filter(status='approved')
-        pending_users = Employee.objects.filter(status='pending')
+#         approved_users = Employee.objects.filter(status='approved')
+#         pending_users = Employee.objects.filter(status='pending')
 
-        approved_list = [{"username": user.user.username, "role": user.role, "department": user.department.name if user.department else None} for user in approved_users]
-        pending_list = [{"username": user.user.username, "role": user.role, "department": user.department.name if user.department else None} for user in pending_users]
+#         approved_list = [{"username": user.user.username, "role": user.role, "department": user.department.name if user.department else None} for user in approved_users]
+#         pending_list = [{"username": user.user.username, "role": user.role, "department": user.department.name if user.department else None} for user in pending_users]
 
-        return Response({
-            "username": request.user.username,
-            "role": request.user.role,
-            "department": request.user.department.name if request.user.department else None
-        })
+#         return Response({
+#             "username": request.user.username,
+#             "role": request.user.role,
+#             "department": request.user.department.name if request.user.department else None
+#         })
 
 
 # Department List API
@@ -171,7 +327,7 @@ class DepartmentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
     permission_classes = [permissions.AllowAny]
-    lookup_field = 'id'
+    lookup_field = 'name'
 
 # User profile view API
 class UserProfileView(APIView):
@@ -186,6 +342,70 @@ class UserProfileView(APIView):
             "is_superuser": user.is_superuser,
             "department": user.department.name if user.department else None
         })
+
+class EmployeeProfileView(APIView):
+    permission_classes = [IsAuthenticated]  # Add custom IsEmployee if applicable
+
+    def get(self, request):
+        try:
+            employee = EmployeeProfile.objects.get(user=request.user)
+        except EmployeeProfile.DoesNotExist:
+            return Response({"detail": "Employee profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        approved_users = EmployeeProfile.objects.filter(status="approved")
+        pending_users = EmployeeProfile.objects.filter(status="pending")
+
+        approved_list = [{
+            "username": user.user.username,
+            "role": user.role,
+            "department": user.department.name if user.department else None,
+        } for user in approved_users]
+
+        pending_list = [{
+            "username": user.user.username,
+            "role": user.role,
+            "department": user.department.name if user.department else None,
+        } for user in pending_users]
+
+        data = {
+            "profile": EmployeeProfileSerializer(employee).data,
+            "approved_users": approved_list,
+            "pending_users": pending_list,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        try:
+            employee = EmployeeProfile.objects.get(user=request.user)
+        except EmployeeProfile.DoesNotExist:
+            return Response({"detail": "Employee profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = EmployeeProfileSerializer(employee, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        try:
+            employee = EmployeeProfile.objects.get(user=request.user)
+        except EmployeeProfile.DoesNotExist:
+            return Response({"detail": "Employee profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = EmployeeProfileSerializer(employee, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        try:
+            employee = EmployeeProfile.objects.get(user=request.user)
+        except EmployeeProfile.DoesNotExist:
+            return Response({"detail": "Employee profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        employee.delete()
+        return Response({"detail": "Employee profile deleted."}, status=status.HTTP_204_NO_CONTENT)
 
 # Assign roles API
 class AssignRoleView(APIView):
@@ -564,24 +784,18 @@ class AttendanceSummaryView(APIView):
 
     def get(self, request):
         user = request.user
-        # Use the local date (without time) for today.
         today = timezone.localdate()
-        # We want a 30-day window (including today)
         start_date = today - datetime.timedelta(days=29)
         summary = []
 
-        # Get all attendance records for the user in the date range.
-        # (Assuming a record is created on clock in and the record's clock_in field indicates the day of attendance.)
         attendances = Attendance.objects.filter(
             user=user,
             clock_in__date__gte=start_date,
             clock_in__date__lte=today
         ).order_by("clock_in")
 
-        # Create a lookup of the dates when the employee clocked in.
         attended_dates = {attendance.clock_in.date() for attendance in attendances}
 
-        # Build the summary for each day in the 30-day window.
         for i in range(30):
             day = start_date + datetime.timedelta(days=i)
             status_str = "Present" if day in attended_dates else "Absent"

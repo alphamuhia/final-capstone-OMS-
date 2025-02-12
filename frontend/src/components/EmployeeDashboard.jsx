@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import AttendanceTable from "./AttendanceTable";
+import NotificationsAlerts from "./NotificationsAlerts";
 import "./styling/EmployeeDashboard.css";
 
 const EmployeeDashboard = () => {
@@ -13,6 +15,13 @@ const EmployeeDashboard = () => {
   const [leaveReason, setLeaveReason] = useState("");
   const [advanceAmount, setAdvanceAmount] = useState("");
   const [userId, setUserId] = useState("");
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("userid");
+    navigate("/login");
+  };
 
   const fetchProfile = () => {
     fetch("http://127.0.0.1:8000/api/profile/", {
@@ -29,7 +38,7 @@ const EmployeeDashboard = () => {
   };
 
   const fetchAttendanceSummary = () => {
-    fetch("http://127.0.0.1:8000/api/employee/attendance-summary/", {
+    fetch("http://127.0.0.1:8000/api/User/attendance-summary/", {
       headers: { 
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
@@ -50,7 +59,7 @@ const EmployeeDashboard = () => {
   const handleDailyLogSubmit = (e) => {
     e.preventDefault();
     const logData = { time_in: timeIn, time_out: timeOut };
-    fetch("http://127.0.0.1:8000/api/employee/", {
+    fetch("http://127.0.0.1:8000/api/profile/", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -131,6 +140,10 @@ const EmployeeDashboard = () => {
 
   return (
     <div className="employee-dashboard">
+      <header>
+        <Link to="/notifications ">Notifications</Link>
+        <button className="logout" onClick={logout}>Logout</button>
+      </header>
       <h1>Employee Dashboard</h1>
 
       <form onSubmit={handleDailyLogSubmit}>

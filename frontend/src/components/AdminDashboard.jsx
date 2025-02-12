@@ -5,6 +5,7 @@ import "./styling/AdminDashboard.css";
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [showPendingApprovals, setShowPendingApprovals] = useState(false);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -19,10 +20,10 @@ const AdminDashboard = () => {
   };
 
   const fetchUsers = () => {
+    console.log("Fetching users...");
     fetch("http://127.0.0.1:8000/api/users/", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     })
@@ -33,13 +34,61 @@ const AdminDashboard = () => {
         return res.json();
       })
       .then((data) => {
+        console.log("Fetched users:", data);
         if (Array.isArray(data)) {
           setUsers(data);
+        } else if (data.results) {
+          setUsers(data.results);
         } else {
           setUsers([]);
         }
       })
       .catch((err) => console.error("Error fetching users:", err));
+  };
+
+  const approveUser = (userId) => {
+    fetch(`http://127.0.0.1:8000/api/approve-user/${userId}/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(async (response) => {
+        const responseText = await response.text();
+        if (!response.ok) {
+          throw new Error(`Failed to approve user: ${responseText}`);
+        }
+        return JSON.parse(responseText);
+      })
+      .then((data) => {
+        alert("User approved successfully!");
+        fetchUsers();
+      })
+      .catch((error) => console.error("Error approving user:", error));
+  };
+
+  const declineUser = (userId) => {
+    fetch(`http://127.0.0.1:8000/api/users/${userId}/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(async (response) => {
+        const responseText = await response.text();
+        if (!response.ok) {
+          throw new Error(`Failed to decline user: ${responseText}`);
+        }
+        return responseText ? JSON.parse(responseText) : {};
+      })
+      .then((data) => {
+        alert("Request declined and account deleted successfully!");
+        fetchUsers();
+      })
+      .catch((error) => {
+        console.error("Error declining user:", error);
+        alert("Error declining user. Please try again.");
+      });
   };
 
   const fetchDepartments = () => {
@@ -48,28 +97,6 @@ const AdminDashboard = () => {
       .then((data) => setDepartments(data))
       .catch((error) => console.error("Error fetching departments:", error));
   };
-
-  const approveUser = (userId) => {
-    fetch(`http://127.0.0.1:8000/api/approve-user/${userId}/`, {
-      method: "POST",
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          throw new Error(`Failed to approve user: ${errorMessage}`);
-        }
-        return response.json();
-      })
-      .then(() => {
-        fetchUsers();
-      })
-      .catch((error) => console.error("Error approving user:", error));
-  };
-
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -101,25 +128,53 @@ const AdminDashboard = () => {
         </ul>
       </nav>
       <h1>Admin Dashboard</h1>
-      <div>
-        {/* Pending Approvals */}
-        <h3>Pending Approvals</h3>
-        <ul>
-          {users
-            .filter((user) => !user.is_approved)
-            .map((user) => {
-              const userDepartment =
-                departments.find((dep) => dep.id === user.department_id)?.name ||
-                "Unknown";
-              return (
-                <li key={user.id}>
-                  {user.username} - {userDepartment} - {user.role}
-                  <button onClick={() => approveUser(user.id)}>Approve</button>
-                </li>
-              );
-            })}
-        </ul>
+      <div className="dashboard-sections">
+        {/* Pending Approvals Card */}
+        <div
+          className="pending-approvals"
+          onClick={() => setShowPendingApprovals((prev) => !prev)}
+          style={{ cursor: "pointer" }}
+        >
+          <h3>Pending Approvals</h3>
+          <p>
+            {users.filter((user) => !user.is_approved).length} account waiting
+            approval
+          </p>
+          {showPendingApprovals && (
+            <ul onClick={(e) => e.stopPropagation()}>
+              {users
+                .filter((user) => !user.is_approved)
+                .map((user) => {
+                  const userDepartment =
+                    departments.find((dep) => dep.id === user.department)?.name ||
+                    "Unknown";
+                  return (
+                    <li key={user.id}>
+                      {user.username} - {userDepartment} - {user.role}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          declineUser(user.id);
+                        }}
+                      >
+                        Decline
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          approveUser(user.id);
+                        }}
+                      >
+                        Approve
+                      </button>
+                    </li>
+                  );
+                })}
+            </ul>
+          )}
+        </div>
       </div>
+
       <div className="dashboard-sections">
         <section>
           <h2>Employee Management</h2>

@@ -91,10 +91,14 @@ from .views import (
     AttendanceSummaryView,
     LeaveRequestViewSet,
     AdvancePaymentRequestViewSet,
+    UserViewSet,
+    RoleViewSet,
 )
 
 router = DefaultRouter()
-router.register(r'admin/payrolls', PayrollViewSet, basename='payrolls')
+router.register(r'roles', RoleViewSet)
+router.register(r'users-b', UserViewSet)
+router.register(r'payrolls', PayrollViewSet, basename='payrolls')
 router.register(r'leave-requests', LeaveRequestViewSet)
 router.register(r'advance-payment-requests', AdvancePaymentRequestViewSet)
 
@@ -104,6 +108,8 @@ urlpatterns = router.urls + [
     path('login/', LoginView.as_view(), name='login'),
     path('users/', views.user_list, name="all-users"),
     path('users/<int:user_id>/', views.user_list, name='user-detail'),
+    # path('users/', user_list.as_views(), name="all-users"),
+    # path('users/<int:user_id>/', user_list.as_vires(), name='user-detail'),
     path('users/department/<int:department>/', views.user_list_by_department, name="all-users-by-department"),
     path("approve-user/<int:user_id>/", ApproveUserView.as_view(), name="approve-user"),
     path("assign-role/<int:user_id>/", AssignRoleView.as_view(), name="assign-role"),
@@ -124,7 +130,7 @@ urlpatterns = router.urls + [
     path('salaries/<int:pk>/', SalaryDetailView.as_view(), name='salary-detail'),
     path('employee/clockin/', ClockView.as_view(), name='clockin'),
     path('employee/clockout/', ClockView.as_view(), name='clockout'),
-    path('employee/attendance-summary/', AttendanceSummaryView.as_view(), name='attendance-summary'),
+    path('User/attendance-summary/', AttendanceSummaryView.as_view(), name='attendance-summary'),
     path('api/leave-requests/<int:pk>/approve/', LeaveRequestViewSet.as_view({'post': 'approve'}), name='approve-leave-request'),
     path('api/advance-payment-requests/<int:pk>/approve/', AdvancePaymentRequestViewSet.as_view({'post': 'approve'}), name='approve-advance-payment-request'),
 ]

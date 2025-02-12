@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Department, Task, Notification, Message, Salary
+from .models import User, Department, Task, Notification, Message, Salary, Role
 
 
 class CustomUserAdmin(UserAdmin):
@@ -28,6 +28,7 @@ admin.site.register(User, CustomUserAdmin)
 admin.site.register(Department)
 admin.site.register(Message)
 admin.site.register(Salary)
+admin.site.register(Role)
 
 
 class TaskAdmin(admin.ModelAdmin):
