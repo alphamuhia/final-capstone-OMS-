@@ -1,0 +1,69 @@
+.salary-edit-container {
+    margin: 20px auto;
+    max-width: 500px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .salary-edit-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .salary-edit-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .salary-edit-form div {
+    margin-bottom: 15px;
+  }
+  
+  .salary-edit-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .salary-edit-form input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .salary-edit-form button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+  }
+  
+  .salary-edit-form button:hover {
+    background-color: #0056b3;
+  }
+  
+  .salary-edit-form .cancel-btn {
+    background-color: #6c757d;
+  }
+  
+  .salary-edit-form .cancel-btn:hover {
+    background-color: #5a6268;
+  }
+  
+  .salary-edit-form .button-group {
+    display: flex;
+    justify-content: flex-start;
+  }
+  

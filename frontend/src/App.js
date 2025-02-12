@@ -5,8 +5,6 @@ import AdminDashboard from "./components/AdminDashboard";
 import EmployeeDashboard from "./components/EmployeeDashboard";
 import EmployeeManagement from "./components/EmployeeManagement";
 import DepartmentManagement from "./components/DepartmentManagement";
-// import PayrollManagement from "./components/PayrollManagement";
-// import PaymentTracking from "./components/PaymentTracking";
 import Reporting from "./components/Reporting";
 import NotificationsAlerts from "./components/NotificationsAlerts";
 import Login from "./components/Login";
@@ -15,12 +13,11 @@ import Home from "./components/Home";
 import ManagerDashboard from "./components/ManagerDashboard";
 import Employee from "./components/Employee";
 import ManageDepartments from "./components/ManageDepartments";
-import Salary from "./components/Salary";
 import AttendanceTable from "./components/AttendanceTable";
 import EditUpdateProfile from "./components/EditUpdateProfile";
-import AddPayroll from "./components/AddPayroll";
-import PayrollHistory from "./components/PayrollHistory";
-import PendingApprovalsCard from "./components/PendingAprovals";
+import SalaryList from "./components/SalaryList";
+import SalaryEdit from "./components/SalaryEdit";
+import AddSalary from "./components/AddSalary";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("access_token");
@@ -58,12 +55,11 @@ function App() {
         <Route path="/employee-list" element={<ProtectedRoute><Employee /></ProtectedRoute>} />
         <Route path="/admin-departments" element={<ProtectedRoute><ManageDepartments /></ProtectedRoute>} />
         <Route path="/departments" element={<ProtectedRoute><DepartmentManagement /></ProtectedRoute>} />
-        <Route path="/salary" element={<ProtectedRoute><Salary /></ProtectedRoute>} />
+        <Route path="/addsalary" element={<ProtectedRoute><AddSalary /></ProtectedRoute>} />
+        <Route path="/salary" element={<ProtectedRoute><SalaryList /></ProtectedRoute>} />
+        <Route path="/editsalary" element={<ProtectedRoute><SalaryEdit /></ProtectedRoute>} />
         <Route path="/attendance" element={<ProtectedRoute><AttendanceTable /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><EditUpdateProfile /></ProtectedRoute>} />
-        <Route path="/payroll" element={<ProtectedRoute><AddPayroll /></ProtectedRoute>} />
-        <Route path="/payhistory" element={<ProtectedRoute><PayrollHistory /></ProtectedRoute>} />
-        <Route path="/approvals" element={<ProtectedRoute><PendingApprovalsCard /></ProtectedRoute>} />
 
       </Routes>
     </Router>

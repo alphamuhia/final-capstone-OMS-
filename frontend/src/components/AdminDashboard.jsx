@@ -193,7 +193,7 @@ const AdminDashboard = () => {
         <section>
           <h2>Payroll Management</h2>
           <p>Process payroll and view payment history.</p>
-          <Link to="/payroll">
+          <Link to="/salary">
             <button>Manage Payroll</button>
           </Link>
         </section>

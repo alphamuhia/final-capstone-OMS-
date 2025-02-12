@@ -642,7 +642,13 @@ class PayrollViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
 # List all salary records or create a new one
+@permission_classes([AllowAny])
 class SalaryListCreateView(generics.ListCreateAPIView):
+    queryset = Salary.objects.all()
+    serializer_class = SalarySerializer
+
+@permission_classes([AllowAny])
+class SalaryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Salary.objects.all()
     serializer_class = SalarySerializer
 
@@ -705,11 +711,6 @@ class ClockView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
-
-# Retrieve, update, or delete a specific salary record
-class SalaryDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Salary.objects.all()
-    serializer_class = SalarySerializer
 
 class TaskReportView(APIView):
     permission_classes = [IsAuthenticated]

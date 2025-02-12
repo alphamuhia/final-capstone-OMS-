@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db import models
+from decimal import Decimal
 
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -127,9 +129,56 @@ class Salary(models.Model):
         related_name='salaries'
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    pay_date = models.DateField(auto_now_add=True) 
+    overtime_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    penalty = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    
+    PAYMENT_METHOD_CHOICES = [
+        ('m-pesa', 'M-Pesa'),
+        ('check', 'Check'),
+        ('cash', 'Cash'),
+        ('bank', 'Bank'),
+    ]
+    payment_method = models.CharField(
+        max_length=50,
+        choices=PAYMENT_METHOD_CHOICES 
+    )
+    
+    pay_date = models.DateField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def calculate_tax(self):
+        """
+        Calculates tax based on:
+          - Overtime bonus is $50 per hour.
+          - Taxable amount = base salary + overtime bonus - penalty.
+          - Tax rate = 10%.
+        """
+        overtime_bonus = self.overtime_hours * Decimal('50.00')
+        taxable_amount = self.amount + overtime_bonus - self.penalty
+        return taxable_amount * Decimal('0.1')
+
+    @property
+    def net_salary(self):
+        """
+        Returns the net salary after adjustments.
+        
+        Calculation:
+          overtime_bonus = overtime_hours * $50.00
+          taxable_amount = base salary + overtime bonus - penalty
+          tax = taxable_amount * 0.1
+          net_salary = taxable_amount - tax
+                     = (base salary + overtime bonus - penalty) * 0.9
+        """
+        overtime_bonus = self.overtime_hours * Decimal('50.00')
+        taxable_amount = self.amount + overtime_bonus - self.penalty
+        tax_value = taxable_amount * Decimal('0.1')
+        return taxable_amount - tax_value
+
+    def save(self, *args, **kwargs):
+        self.tax = self.calculate_tax()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} - {self.amount}"

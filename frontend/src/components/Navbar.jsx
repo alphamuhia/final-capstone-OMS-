@@ -4,10 +4,10 @@ import "./styling/Navbar.css";
 
 const Navbar = () => {
   const token = localStorage.getItem("token");
-  const userRole = localStorage.getItem("role"); // Could be "admin", "manager", or "employee"
+  const userRole = localStorage.getItem("role");
   const navigate = useNavigate();
 
-  // Function to handle logout: removes token and role, then navigates to home
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -29,61 +29,6 @@ const Navbar = () => {
               </li>
               <li>
                 <Link to="/signup">Signup</Link>
-              </li>
-            </>
-          )}
-
-          {/* When logged in as admin, show admin-specific links */}
-          {token && userRole === "admin" && (
-            <>
-              <li>
-                <Link to="/admin">Dashboard</Link>
-              </li>
-              <li>
-                <Link to="/employees">Employees</Link>
-              </li>
-              <li>
-                <Link to="/departments">Departments</Link>
-              </li>
-              <li>
-                <Link to="/positions">Positions</Link>
-              </li>
-              <li>
-                <Link to="/payroll">Payroll</Link>
-              </li>
-              <li>
-                <Link to="/reports">Reports</Link>
-              </li>
-              <li>
-                <Link to="/notifications">Alerts</Link>
-              </li>
-            </>
-          )}
-
-          {/* When logged in as manager, show manager-specific links */}
-          {token && userRole === "manager" && (
-            <>
-              <li>
-                <Link to="/manager">Dashboard</Link>
-              </li>
-              <li>
-                <Link to="/team">Team</Link>
-              </li>
-              <li>
-                <Link to="/projects">Projects</Link>
-              </li>
-              {/* Add more manager-specific links as needed */}
-            </>
-          )}
-
-          {/* When logged in as employee, show employee-specific links */}
-          {token && userRole === "employee" && (
-            <>
-              <li>
-                <Link to="/employee">Dashboard</Link>
-              </li>
-              <li>
-                <Link to="/employee/payments">Payment History</Link>
               </li>
             </>
           )}

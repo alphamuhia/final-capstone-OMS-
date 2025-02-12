@@ -151,10 +151,26 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = ['id', 'sender', 'receiver', 'sender_username', 'receiver_username', 'content', 'timestamp']
 
 class SalarySerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    payment_method = serializers.ChoiceField(choices=Salary.PAYMENT_METHOD_CHOICES)
+    net_salary = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
     class Meta:
         model = Salary
-        fields = ['id', 'user', 'amount', 'pay_date', 'created_at', 'updated_at']
-
+        fields = [
+            'id',
+            'user',
+            'amount',
+            'overtime_hours',
+            'penalty',
+            'tax',
+            'net_salary',
+            'payment_method',
+            'pay_date',
+            'created_at',
+            'updated_at'
+        ]
+        
 class PayrollSerializer(serializers.ModelSerializer):
     user_username = serializers.ReadOnlyField(source='user.username')
     
