@@ -18,6 +18,7 @@ import SalaryEdit from "./components/SalaryEdit";
 import AddSalary from "./components/AddSalary";
 import ManagerDepartment from "./components/ManagerDashboard";
 import Notifications from "./components/Notifications";
+import Payout from "./components/Payout";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("access_token");
@@ -50,6 +51,8 @@ function App() {
         <Route path="/attendance" element={<ProtectedRoute><AttendanceTable /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><EditUpdateProfile /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+
+        <Route path="/payout" element={<ProtectedRoute><Payout /></ProtectedRoute>} />
 
       </Routes>
     </Router>

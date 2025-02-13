@@ -69,7 +69,7 @@ const DepartmentManagement = () => {
         method: "DELETE"
       });
       if (!response.ok) throw new Error("Failed to delete department");
-      setDepartments(departments.filter((department) => department.id !== id));
+      setDepartments(departments.filter((department) => department.name !== id));
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -109,7 +109,10 @@ const DepartmentManagement = () => {
           <div className="department-details">
             {selectedDepartment ? (
               <div className="department-card">
-                <h2>Employees in Department {selectedDepartment}</h2>
+                {/* <h2>{selectedDepartment} Employees</h2> */}
+                <h2>
+                  {departments.find((dept) => dept.id === selectedDepartment)?.name} Employees
+                </h2>
                 {departmentEmployees.length > 0 ? (
                   <ul>
                     {departmentEmployees.map((emp) => (

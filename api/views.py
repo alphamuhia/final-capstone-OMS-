@@ -8,7 +8,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
+from django.conf import settings
+import stripe
 from .permissions import IsSenderOrRecipientOrPublic
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from .models import (
@@ -50,6 +53,7 @@ from .serializers import (
 )
 
 User = get_user_model()
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # User Registration API
 class RegisterView(generics.CreateAPIView):
@@ -451,42 +455,80 @@ class ListMessagesView(APIView):
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data)
 
+## New
+def can_send_notification(sender, recipient):
+    # Broadcast notifications (recipient is None) are allowed.
+    if recipient is None:
+        return True
+
+    # Communication rules:
+    # - Employee to employee
+    # - Admin and Employee (both directions)
+    # - Admin and Manager (both directions)
+    # - Manager and Employee (both directions)
+    if sender.role == recipient.role:
+        return True
+    if (sender.role, recipient.role) in [
+        ('admin', 'employee'), ('employee', 'admin'),
+        ('admin', 'manager'), ('manager', 'admin'),
+        ('manager', 'employee'), ('employee', 'manager'),
+    ]:
+        return True
+    return False
+
 class NotificationListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
-    
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
-        # Return notifications where:
-        # - the user is the sender, OR
-        # - the user is the recipient, OR
-        # - the notification is broadcast (recipient is None)
         return Notification.objects.filter(
             Q(sender=user) | Q(recipient=user) | Q(recipient__isnull=True)
         )
-    
+
     def perform_create(self, serializer):
-        # Automatically set the sender to the logged in user.
-        serializer.save(sender=self.request.user)
-
-# class NotificationListCreateAPIView(generics.ListCreateAPIView):
-#     serializer_class = NotificationSerializer
-#     permission_classes = [AllowAny]  
-#     authentication_classes = []
-
-#     def get_queryset(self):
-#         try:
-#             queryset = Notification.objects.all().order_by('-is_pinned', '-created_at')
-#             print(f"Fetched {queryset.count()} notifications")
-#             return queryset
-#         except Exception as e:
-#             print(f"Error fetching notifications: {str(e)}")  
-#             return Notification.objects.none()
+        recipient = serializer.validated_data.get('recipient', None)
+        sender = self.request.user
+        if not can_send_notification(sender, recipient):
+            raise PermissionDenied("You do not have permission to send a notification to this user.")
+        instance = serializer.save(sender=sender)
+        # Trigger real-time and/or email notifications (see below).
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        # If sending to a specific user:
+        if recipient:
+            async_to_sync(channel_layer.group_send)(
+                f"user_{recipient.id}",
+                {
+                    "type": "notification_message",
+                    "message": {
+                        "id": instance.id,
+                        "sender": instance.sender.username,
+                        "message": instance.message,
+                        "created_at": instance.created_at.isoformat(),
+                    }
+                }
+            )
+        else:
+            # For broadcast notifications, send to a "broadcast" group.
+            async_to_sync(channel_layer.group_send)(
+                "broadcast",
+                {
+                    "type": "notification_message",
+                    "message": {
+                        "id": instance.id,
+                        "sender": instance.sender.username,
+                        "message": instance.message,
+                        "created_at": instance.created_at.isoformat(),
+                    }
+                }
+            )
 
 class NotificationRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsSenderOrRecipientOrPublic]
-    
+
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
@@ -496,11 +538,36 @@ class NotificationRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPI
         return Notification.objects.filter(recipient__isnull=True)
 
 
-# class NotificationRetrieveUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
+### Original
+# class NotificationListCreateAPIView(generics.ListCreateAPIView):
 #     serializer_class = NotificationSerializer
-#     queryset = Notification.objects.all()
-#     permission_classes = [AllowAny]
-#     authentication_classes = []
+#     permission_classes = [IsAuthenticated]
+    
+#     def get_queryset(self):
+#         user = self.request.user
+#         # Return notifications where:
+#         # - the user is the sender, OR
+#         # - the user is the recipient, OR
+#         # - the notification is broadcast (recipient is None)
+#         return Notification.objects.filter(
+#             Q(sender=user) | Q(recipient=user) | Q(recipient__isnull=True)
+#         )
+    
+#     def perform_create(self, serializer):
+#         serializer.save(sender=self.request.user)
+
+# class NotificationRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+#     serializer_class = NotificationSerializer
+#     permission_classes = [IsSenderOrRecipientOrPublic]
+    
+#     def get_queryset(self):
+#         user = self.request.user
+#         if user.is_authenticated:
+#             return Notification.objects.filter(
+#                 Q(sender=user) | Q(recipient=user) | Q(recipient__isnull=True)
+#             )
+#         return Notification.objects.filter(recipient__isnull=True)
+
 
 
 class LeaveRequestViewSet(viewsets.ModelViewSet):
@@ -526,3 +593,36 @@ class AdvancePaymentRequestViewSet(viewsets.ModelViewSet):
 
 #     def perform_create(self, serializer):
 #         serializer.save(employee=self.request.user)
+
+
+class CreatePaymentIntent(APIView):
+    """
+    API endpoint to create a Stripe PaymentIntent that accepts credit card payments only.
+    Expects a POST request with JSON data: { "amount": 5000 } (amount in cents)
+    """
+
+    def post(self, request, *args, **kwargs):
+        try:
+            amount = request.data.get('amount')
+            if not amount:
+                return Response(
+                    {'error': 'Amount is required.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            amount = int(amount)
+            
+            # Create a PaymentIntent that accepts only card payments
+            intent = stripe.PaymentIntent.create(
+                amount=amount,
+                currency='usd',
+                payment_method_types=["card"],
+            )
+            
+            return Response({'clientSecret': intent.client_secret})
+        
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

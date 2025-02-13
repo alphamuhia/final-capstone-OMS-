@@ -3,7 +3,6 @@ import './styling/SalaryEdit.css';
 
 function SalaryEdit({ salary, onUpdate, onCancel, onDelete }) {
   const paymentMethodOptions = [
-    { value: 'm-pesa', display: 'M-Pesa' },
     { value: 'check', display: 'Check' },
     { value: 'cash', display: 'Cash' },
     { value: 'bank', display: 'Bank' }

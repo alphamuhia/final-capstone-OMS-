@@ -134,7 +134,6 @@ class Salary(models.Model):
     tax = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     
     PAYMENT_METHOD_CHOICES = [
-        ('m-pesa', 'M-Pesa'),
         ('check', 'Check'),
         ('cash', 'Cash'),
         ('bank', 'Bank'),
@@ -182,21 +181,28 @@ class Salary(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.amount}"
-    
+
+## new notification model
 class Notification(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications', null=True, blank=True)
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications', null=True, blank=True)
+    sender = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='sent_notifications', null=True, blank=True
+    )
+    recipient = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='received_notifications', null=True, blank=True
+    )
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     is_pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"From {self.sender} to {self.recipient}: {self.message}"
+        rec = self.recipient.username if self.recipient else "Everyone"
+        return f"From {self.sender} to {rec}: {self.message}"
 
+### {/* this is the original notification model */}
 # class Notification(models.Model):
-#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
-#     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications')
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications', null=True, blank=True)
+#     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications', null=True, blank=True)
 #     message = models.TextField()
 #     is_read = models.BooleanField(default=False)
 #     is_pinned = models.BooleanField(default=False)

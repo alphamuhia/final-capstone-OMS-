@@ -25,6 +25,7 @@ from .views import (
     UserViewSet,
     NotificationListCreateAPIView,
     RoleViewSet,
+    CreatePaymentIntent,
 )
 
 router = DefaultRouter()
@@ -58,5 +59,9 @@ urlpatterns = router.urls + [
     path('daily-log/', DailyLogListCreateAPIView.as_view(), name='daily-log-create'),
     path('notifications/', NotificationListCreateAPIView.as_view(), name='notification-list-create'),
     path('notifications/<int:pk>/', NotificationRetrieveUpdateDestroyAPIView.as_view(), name='notification-retrieve-update'),
+
+    path('createpayment/', CreatePaymentIntent.as_view(), name='create-payment-intent'),
+    # path('create-payment/', CreatePaymentIntent.as_view(), name='create-payment-intent'),
 ]
+
 

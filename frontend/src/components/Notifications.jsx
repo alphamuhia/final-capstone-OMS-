@@ -101,7 +101,7 @@ const Notifications = () => {
         <li>Real time notifications</li>
         <li>Email notifications</li>
         <li>Employee to employee Comunication</li>
-        <li>Admin to employee Comunicationand vise vasa</li>
+        <li>Admin to employee Comunication and vise vasa</li>
         <li>Admin tomanager communication and vise vasa</li>
         <li>Manager to employee communication and vise vasa</li>
       </ul>

@@ -94,30 +94,53 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = '__all__'
 
+## new notificationserializer
 class NotificationSerializer(serializers.ModelSerializer):
-    sender = serializers.ReadOnlyField(source='sender.username')  
-    recipient = serializers.ReadOnlyField(source='recipient.username')
+    sender = serializers.ReadOnlyField(source='sender.username')
+    recipient = serializers.SerializerMethodField()
 
     class Meta:
         model = Notification
         fields = ['id', 'sender', 'recipient', 'message', 'is_read', 'is_pinned', 'created_at']
         read_only_fields = ['created_at']
 
-        def get_recipient(self, obj):
-            # If the notification has a recipient, return their username.
-            # Otherwise, assume it's a broadcast notification and return "Everyone".
-            if obj.recipient:
-                return obj.recipient.username
-            return "Everyone"
-    
+    def get_recipient(self, obj):
+        if obj.recipient:
+            return obj.recipient.username
+        return "Everyone"
+
 class SendNotificationSerializer(serializers.ModelSerializer):
-    recipient = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source='user'
-    )
+    recipient = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
 
     class Meta:
         model = Notification
         fields = ['recipient', 'message']
+    
+### Original notificationserializer
+# class NotificationSerializer(serializers.ModelSerializer):
+#     sender = serializers.ReadOnlyField(source='sender.username')  
+#     recipient = serializers.ReadOnlyField(source='recipient.username')
+
+#     class Meta:
+#         model = Notification
+#         fields = ['id', 'sender', 'recipient', 'message', 'is_read', 'is_pinned', 'created_at']
+#         read_only_fields = ['created_at']
+
+#         def get_recipient(self, obj):
+#             # If the notification has a recipient, return their username.
+#             # Otherwise, assume it's a broadcast notification and return "Everyone".
+#             if obj.recipient:
+#                 return obj.recipient.username
+#             return "Everyone"
+    
+# class SendNotificationSerializer(serializers.ModelSerializer):
+#     recipient = serializers.PrimaryKeyRelatedField(
+#         queryset=User.objects.all(), source='user'
+#     )
+
+#     class Meta:
+#         model = Notification
+#         fields = ['recipient', 'message']
 
 class MessageSerializer(serializers.ModelSerializer):
     sender_username = serializers.ReadOnlyField(source="sender.username")

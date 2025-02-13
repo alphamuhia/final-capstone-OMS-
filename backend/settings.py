@@ -57,6 +57,13 @@ AUTH_USER_MODEL = 'api.User'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+
+STRIPE_SECRET_KEY = "sk_test_51Qrze7E0j5VdeT2CRJn2gwqQBwvj7yvpXQBgUtn2u1n30sTyjSjhNSMjhNRxDAfvDEm0ORpZ7WmtZWcg2AS064Fe00KfhnKqdL"
 
 # Application definition
 

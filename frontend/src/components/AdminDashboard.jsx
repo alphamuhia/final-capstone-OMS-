@@ -114,7 +114,7 @@ const AdminDashboard = () => {
             <Link to="/employee-list">Employee</Link>
           </li>
           <li>
-            <Link to="/payroll">Payroll</Link>
+            <Link to="/salary">Payroll</Link>
           </li>
           
           <li>

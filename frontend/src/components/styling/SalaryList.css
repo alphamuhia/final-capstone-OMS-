@@ -1,85 +1,118 @@
 .salary-list {
-    margin: 20px auto;
-    max-width: 800px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-  }
-  
-  .salary-list h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .salary-list ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .salary-list li {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
-    background-color: #fff;
-    border-radius: 5px;
-  }
-  
-  .salary-list li:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-  }
-  
-  .salary-details {
-    margin-bottom: 10px;
-    color: #555;
-  }
-  
-  .salary-list button {
-    align-self: flex-start;
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-  }
-  
-  .salary-list button:hover {
-    background-color: #0056b3;
-  }
-  
-  .loading {
-    text-align: center;
-    padding: 50px;
-    font-size: 1.2em;
-    color: #666;
-  }
-  
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 600px;
-    width: 90%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-  
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Arial', sans-serif;
+}
+
+.salary-list nav {
+  margin-bottom: 20px;
+}
+
+.salary-list nav li {
+  list-style: none;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.salary-list nav a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.salary-list nav a:hover {
+  text-decoration: underline;
+}
+
+.salary-list h1 {
+  text-align: center;
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.salary-list a {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #28a745;
+  font-weight: bold;
+}
+
+.salary-list a:hover {
+  text-decoration: underline;
+}
+
+.salary-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.salary-list li {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.salary-details {
+  font-size: 0.95em;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.5em;
+  color: #666;
+  margin-top: 50px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}

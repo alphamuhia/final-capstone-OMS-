@@ -22,18 +22,34 @@ class IsEmployee(BasePermission):
     """
     def has_permission(self, request, view):
         return request.user and request.user.role in ["assistant_manager", "team_leader", "employee"]
-
+    
+## New permissions
 class IsSenderOrRecipientOrPublic(permissions.BasePermission):
     """
     Custom permission:
-      - For safe methods: allow access if the notification is public (broadcast)
-        or if the request user is the sender or recipient.
-      - For unsafe methods: only allow if the request user is the sender or recipient.
+    - For safe methods: allow access if notification is broadcast or if the request user
+      is the sender or recipient.
+    - For unsafe methods: only allow if the request user is the sender or recipient.
     """
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             if obj.recipient is None:
                 return True
             return obj.sender == request.user or obj.recipient == request.user
-        
         return obj.sender == request.user or obj.recipient == request.user
+
+### Originam permisions
+# class IsSenderOrRecipientOrPublic(permissions.BasePermission):
+#     """
+#     Custom permission:
+#       - For safe methods: allow access if the notification is public (broadcast)
+#         or if the request user is the sender or recipient.
+#       - For unsafe methods: only allow if the request user is the sender or recipient.
+#     """
+#     def has_object_permission(self, request, view, obj):
+#         if request.method in permissions.SAFE_METHODS:
+#             if obj.recipient is None:
+#                 return True
+#             return obj.sender == request.user or obj.recipient == request.user
+        
+#         return obj.sender == request.user or obj.recipient == request.user
