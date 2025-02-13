@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Department, Task, Notification, Message, Salary, Role
+from .models import User, Department, Task, Message, Salary, Role, Notification
 
 
 class CustomUserAdmin(UserAdmin):
@@ -37,16 +37,11 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ('title', 'assigned_to__username')
 
 admin.site.register(Task, TaskAdmin)
+admin.site.register(Notification)
 
-class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'message', 'is_read', 'created_at')
-    list_filter = ('is_read', 'created_at')
-    search_fields = ('user__username', 'message')
 
-admin.site.register(Notification, NotificationAdmin)
 
 
 # admin.site.register(User)
 # admin.site.register(Department)
-# admin.site.register(Notification)
 # admin.site.register(Task)

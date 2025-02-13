@@ -116,9 +116,7 @@ const AdminDashboard = () => {
           <li>
             <Link to="/payroll">Payroll</Link>
           </li>
-          <li>
-            <Link to="/notifications">Notification</Link>
-          </li>
+          
           <li>
             <button onClick={refreshData}>Refresh Data</button>
           </li>

@@ -1,6 +1,19 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Department, Task, Notification, Message, EmployeeProfile, Payroll, Salary, LeaveRequest, AdvancePaymentRequest, Role
+from datetime import datetime, timedelta, date
+from .models import (
+    Department, 
+    Task, 
+    Message, 
+    EmployeeProfile, 
+    DailyLog, 
+    Payroll, 
+    Salary, 
+    LeaveRequest, 
+    Notification,
+    AdvancePaymentRequest, 
+    Role
+)
 
 User = get_user_model()
 
@@ -16,10 +29,6 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = ['id', 'name', 'employees']
 
-# class EmployeeSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Employee
-#         fields = ['id', 'name']
 
 class EmployeeProfileSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
@@ -43,54 +52,6 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
     def get_department_name(self, obj):
         return obj.department.name if obj.department else None
 
-# class UserProfileSerializer(serializers.ModelSerializer):
-#     username = serializers.CharField(source='user.username')
-#     role = serializers.CharField(source='user.role', allow_null=True, required=False)
-#     department = serializers.PrimaryKeyRelatedField(
-#         source='user.department', 
-#         queryset=Department.objects.all(), 
-#         allow_null=True, 
-#         required=False
-#     )
-#     email = serializers.EmailField(source='user.email', read_only=True)
-    
-#     class Meta:
-#         model = UserProfile
-#         fields = (
-#             'username',
-#             'email',
-#             'full_name',
-#             'id_number',
-#             'address',
-#             'profile_picture',
-#             'role',
-#             'department',
-#         )
-    
-#     def update(self, instance, validated_data):
-#         user_data = validated_data.pop('user', {})
-#         user = instance.user
-        
-#         user.username = user_data.get('username', user.username)
-#         user.role = user_data.get('role', user.role)
-#         if 'department' in user_data:
-#             user.department = user_data.get('department', user.department)
-#         user.save()
-        
-#         instance.full_name = validated_data.get('full_name', instance.full_name)
-#         instance.id_number = validated_data.get('id_number', instance.id_number)
-#         instance.address = validated_data.get('address', instance.address)
-#         if validated_data.get('profile_picture') is not None:
-#             instance.profile_picture = validated_data.get('profile_picture')
-#         instance.save()
-        
-#         return instance
-
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['id', 'username', 'email', 'role', 'department', 'is_approved']
-#         read_only_fields = ['is_approved']
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -98,9 +59,7 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class UserSerializer(serializers.ModelSerializer):
-    # Option 1: Show role details (read-only nested serializer)
     role = RoleSerializer(read_only=True)
-    # Optionally, if you need to set a role by its ID during writes:
     role_id = serializers.PrimaryKeyRelatedField(
         queryset=Role.objects.all(),
         source='role',
@@ -133,14 +92,32 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        # fields = ['id', 'title', 'description', 'assigned_to', 'assigned_to_username', 
-        #           'created_by', 'created_by_username', 'status', 'created_at', 'updated_at']
         fields = '__all__'
 
 class NotificationSerializer(serializers.ModelSerializer):
+    sender = serializers.ReadOnlyField(source='sender.username')  
+    recipient = serializers.ReadOnlyField(source='recipient.username')
+
     class Meta:
         model = Notification
-        fields = ['id', 'message', 'is_read', 'created_at']
+        fields = ['id', 'sender', 'recipient', 'message', 'is_read', 'is_pinned', 'created_at']
+        read_only_fields = ['created_at']
+
+        def get_recipient(self, obj):
+            # If the notification has a recipient, return their username.
+            # Otherwise, assume it's a broadcast notification and return "Everyone".
+            if obj.recipient:
+                return obj.recipient.username
+            return "Everyone"
+    
+class SendNotificationSerializer(serializers.ModelSerializer):
+    recipient = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='user'
+    )
+
+    class Meta:
+        model = Notification
+        fields = ['recipient', 'message']
 
 class MessageSerializer(serializers.ModelSerializer):
     sender_username = serializers.ReadOnlyField(source="sender.username")
@@ -182,8 +159,51 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaveRequest
         fields = '__all__'
+        read_only_fields = ('employee', 'status', 'created_at')
 
 class AdvancePaymentRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdvancePaymentRequest
-        fields = '__all__'
+        fields = ('amount', 'reason')
+    
+    def create(self, validated_data):
+        validated_data.pop('reason', None)
+        return AdvancePaymentRequest.objects.create(**validated_data)
+
+
+# class AdvancePaymentRequestSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = AdvancePaymentRequest
+#         fields = '__all__'
+#         read_only_fields = ('employee', 'created_at')
+
+class DailyLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyLog
+        fields = ['id', 'user', 'time_in', 'time_out', 'hours_worked', 'date', 'created_at']
+        read_only_fields = ['id', 'user', 'hours_worked', 'date', 'created_at']
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        user = request.user
+        time_in = validated_data.get("time_in")
+        time_out = validated_data.get("time_out")
+
+        today_date = date.today()
+
+        if DailyLog.objects.filter(user=user, date=today_date).exists():
+            raise serializers.ValidationError("Daily log for today already exists.")
+
+        dt_in = datetime.combine(today_date, time_in)
+        dt_out = datetime.combine(today_date, time_out)
+
+        if dt_out < dt_in:
+            dt_out += timedelta(days=1)
+
+        hours_worked = round((dt_out - dt_in).total_seconds() / 3600, 2)
+
+        validated_data["hours_worked"] = hours_worked
+        validated_data["user"] = user
+        validated_data["date"] = today_date  
+
+        return DailyLog.objects.create(**validated_data)

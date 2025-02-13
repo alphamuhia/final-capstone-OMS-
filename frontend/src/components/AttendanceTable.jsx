@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
+// import "./AttendanceTable.css";
 
-const AttendanceTable = ({ token }) => {
+const AttendanceTable = () => {
   const [attendances, setAttendances] = useState([]);
+  const token = localStorage.getItem("access_token");
 
   useEffect(() => {
-    if (!token) {
-      console.error("No token provided");
-      return;
-    }
-    fetch("http://127.0.0.1:8000/api/User/attendance-summary/", {
+    fetch("http://127.0.0.1:8000/api/daily-log/", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -21,9 +19,7 @@ const AttendanceTable = ({ token }) => {
         return response.json();
       })
       .then((data) => setAttendances(data))
-      .catch((error) =>
-        console.error("Error fetching attendance:", error)
-      );
+      .catch((error) => console.error("Error fetching attendance:", error));
   }, [token]);
 
   return (
@@ -48,9 +44,7 @@ const AttendanceTable = ({ token }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="3">
-                No attendance records found for this month.
-              </td>
+              <td colSpan="3">No attendance records found for this month.</td>
             </tr>
           )}
         </tbody>

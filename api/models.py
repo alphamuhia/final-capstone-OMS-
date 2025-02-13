@@ -182,35 +182,28 @@ class Salary(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.amount}"
-
-# class Task(models.Model):
-#     title = models.CharField(max_length=255)
-#     due_date = models.DateField()
-#     description = models.TextField()
-#     assigned_department = models.ForeignKey(
-#         Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks"
-#     )
-#     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_tasks")
-#     status = models.CharField(
-#         max_length=20,
-#         choices=[("pending", "Pending"), ("in_progress", "In Progress"), ("completed", "Completed")],
-#         default="pending",
-#     )
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     def __str__(self):
-#         return self.title
-
-
+    
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications', null=True, blank=True)
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications', null=True, blank=True)
     message = models.TextField()
     is_read = models.BooleanField(default=False)
+    is_pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Notification for {self.user.username}: {self.message}"
+        return f"From {self.sender} to {self.recipient}: {self.message}"
+
+# class Notification(models.Model):
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
+#     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications')
+#     message = models.TextField()
+#     is_read = models.BooleanField(default=False)
+#     is_pinned = models.BooleanField(default=False)
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"From {self.sender} to {self.recipient}: {self.message}"
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
@@ -267,10 +260,25 @@ class Payroll(models.Model):
     def __str__(self):
         return f"Payroll for {self.user.username}: {self.salary} via {self.payment_method}"
 
-class Attendance(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendances")
-    clock_in = models.DateTimeField()
-    clock_out = models.DateTimeField(null=True, blank=True)
+# class Attendance(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendances")
+#     clock_in = models.DateTimeField()
+#     clock_out = models.DateTimeField(null=True, blank=True)
+
+#     def __str__(self):
+#         return f"{self.user.username} - Clock In: {self.clock_in}, Clock Out: {self.clock_out or 'In Progress'}"
+
+class DailyLog(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="daily_logs"
+    )
+    time_in = models.TimeField()
+    time_out = models.TimeField()
+    hours_worked = models.DecimalField(max_digits=5, decimal_places=2)
+    date = models.DateField(auto_now_add=True) 
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - Clock In: {self.clock_in}, Clock Out: {self.clock_out or 'In Progress'}"
+        return f"{self.user.username} - {self.date}"

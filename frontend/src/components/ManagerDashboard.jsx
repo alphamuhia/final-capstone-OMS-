@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./styling/ManagerDashboard.css"; 
 
 const ManagerDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [employees, setEmployees] = useState([]);
-  const [tasks, setTasks] = useState([]);
   const [attendance, setAttendance] = useState({});
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [advanceRequests, setAdvanceRequests] = useState([]);
@@ -19,6 +18,7 @@ const ManagerDashboard = () => {
     navigate("/login");
   };
 
+  // Fetch the manager's profile
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/profile/", {
       headers: { Authorization: `Bearer ${token}` },
@@ -28,33 +28,17 @@ const ManagerDashboard = () => {
       .catch((err) => console.error(err));
   }, [token]);
 
+  // Fetch all users (no filtering by department)
   useEffect(() => {
-    if (profile && profile.department) {
-      fetch(`http://127.0.0.1:8000/api/users/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setEmployees(data))
-        .catch((err) => console.error(err));
-    }
-  }, [profile, token]);
-
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/tasks/", {
-      headers: { Authorization: `Bearer ${token}` },
+    fetch("http://127.0.0.1:8000/api/users/", {
+      headers: { "Content-Type": "application/json" },
     })
       .then((res) => res.json())
-      .then((data) => {
-        const deptTasks = data.filter(
-          (task) =>
-            task.assigned_to &&
-            task.assigned_to.department === profile?.department
-        );
-        setTasks(deptTasks);
-      })
+      .then((data) => setEmployees(data))
       .catch((err) => console.error(err));
-  }, [token, profile]);
+  }, [token]);
 
+  // Fetch leave requests
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/leave-requests/", {
       headers: { Authorization: `Bearer ${token}` },
@@ -73,8 +57,9 @@ const ManagerDashboard = () => {
       .catch((err) => console.error(err));
   }, [token]);
 
+  // Fetch advance requests
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/advance-requests/", {
+    fetch("http://127.0.0.1:8000/api/advance-payment-requests/", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -93,7 +78,7 @@ const ManagerDashboard = () => {
 
   // Fetch attendance for a specific employee
   const fetchAttendance = (employeeId) => {
-    fetch(`http://127.0.0.1:8000/api/employee/attendance-summary/?user=${employeeId}`, {
+    fetch(`http://127.0.0.1:8000/api/daily-log/?user=${employeeId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -108,7 +93,7 @@ const ManagerDashboard = () => {
       .catch((err) => console.error(err));
   };
 
-  // Approve a request (leave or advance) by calling the appropriate endpoint
+  // Approve a request (leave or advance)
   const approveRequest = (reqId, requestType) => {
     let endpoint = "";
     if (requestType === "leave") {
@@ -139,49 +124,25 @@ const ManagerDashboard = () => {
       <header>
         <h2>Manager Dashboard</h2>
         <button className="logout" onClick={logout}>Logout</button>
+        <Link to="/notifications"><button>Notifications</button></Link>
       </header>
-      {/* Display the manager's department (adjust the property name as needed) */}
+      
+      {/* Display the manager's department if available */}
       <p className="dep-title">Department: {profile?.department || "N/A"}</p>
       
       <h3>Employees</h3>
       <ul>
-        {profile &&
-          employees
-            .filter((emp) => emp.department === profile.department)
-            .map((emp) => (
-              <li key={emp.id}>
-                <strong>{emp.username}</strong> —{" "}
-                {attendance[emp.id]
-                  ? `${attendance[emp.id].present} present / ${attendance[emp.id].absent} absent`
-                  : "Attendance: N/A"}
-                {" "}
-                <button onClick={() => fetchAttendance(emp.id)}>Fetch Attendance</button>
-              </li>
-            ))}
+        {employees.map((emp) => (
+          <li key={emp.id}>
+            <strong>{emp.username}</strong> —{" "}
+            {attendance[emp.id]
+              ? `${attendance[emp.id].present} present / ${attendance[emp.id].absent} absent`
+              : "Attendance: N/A"}
+            {" "}
+            <button onClick={() => fetchAttendance(emp.id)}>Fetch Attendance</button>
+          </li>
+        ))}
       </ul>
-
-      {/* Uncomment the tasks section if you want to display department tasks */}
-      {/*
-      <h3>Department Tasks</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task) => (
-            <tr key={task.id}>
-              <td>{task.title}</td>
-              <td>{task.description}</td>
-              <td>{task.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      */}
 
       <h3>Pending Leave Requests</h3>
       <table>
