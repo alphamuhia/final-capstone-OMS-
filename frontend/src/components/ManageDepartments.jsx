@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react"; 
 import "./styling/DepartmentManagement.css"; 
+import AdminNavbar from "./AdminNavbar";
 
 const DepartmentManagement = () => {
   const [departments, setDepartments] = useState([]);
@@ -27,7 +27,6 @@ const DepartmentManagement = () => {
     fetchDepartments();
   }, []);
 
-  // Fetch Employees for Selected Department
   useEffect(() => {
     if (!selectedDepartment) return;
     const fetchDepartmentEmployees = async () => {
@@ -43,7 +42,6 @@ const DepartmentManagement = () => {
     fetchDepartmentEmployees();
   }, [selectedDepartment]);
   
-  // Add a New Department
   const handleAddDepartment = async () => {
     if (!newDepartmentName) return alert("Please provide a department name");
     try {
@@ -61,7 +59,6 @@ const DepartmentManagement = () => {
     }
   };
 
-  // Delete a Department
   const handleDeleteDepartment = async (id) => {
     if (!window.confirm("Are you sure you want to delete this department?")) return;
     try {
@@ -69,7 +66,7 @@ const DepartmentManagement = () => {
         method: "DELETE"
       });
       if (!response.ok) throw new Error("Failed to delete department");
-      setDepartments(departments.filter((department) => department.name !== id));
+      setDepartments(departments.filter((department) => department.id !== id));
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -77,10 +74,8 @@ const DepartmentManagement = () => {
 
   return (
     <div>
-      <nav>
-        <li><Link to="/admin">Dashboard</Link></li>
-      </nav>
-      <h1>Department Management</h1>
+      <AdminNavbar />
+      <h1 className="title">Department Management</h1>
       {loading && <p>Loading data...</p>}
       {error && <p className="error">Error: {error}</p>}
       {!loading && !error && (
@@ -106,27 +101,29 @@ const DepartmentManagement = () => {
             />
             <button className="add-department" onClick={handleAddDepartment}>Add Department</button>
           </div>
-          <div className="department-details">
-            {selectedDepartment ? (
-              <div className="department-card">
-                {/* <h2>{selectedDepartment} Employees</h2> */}
-                <h2>
-                  {departments.find((dept) => dept.id === selectedDepartment)?.name} Employees
-                </h2>
-                {departmentEmployees.length > 0 ? (
-                  <ul>
-                    {departmentEmployees.map((emp) => (
-                      <li key={emp.id}>
-                        {emp.username} - {emp.role}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No employees in this department</p>
-                )}
-              </div>
+        </div>
+      )}
+
+      {/* Modal Popup for Department Employees */}
+      {selectedDepartment && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="modal-close" onClick={() => setSelectedDepartment(null)}>
+              &times;
+            </button>
+            <h2>
+              {departments.find((dept) => dept.id === selectedDepartment)?.name} Employees
+            </h2>
+            {departmentEmployees.length > 0 ? (
+              <ul>
+                {departmentEmployees.map((emp) => (
+                  <li key={emp.id}>
+                    {emp.username} - {emp.role}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <p>Select a department to view employees</p>
+              <p>No employees in this department</p>
             )}
           </div>
         </div>

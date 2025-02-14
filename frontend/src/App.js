@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Navigate, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
 import AdminDashboard from "./components/AdminDashboard";
 import EmployeeDashboard from "./components/EmployeeDashboard";
 import EmployeeManagement from "./components/EmployeeManagement";
@@ -19,6 +18,9 @@ import AddSalary from "./components/AddSalary";
 import ManagerDepartment from "./components/ManagerDashboard";
 import Notifications from "./components/Notifications";
 import Payout from "./components/Payout";
+import Navbar from "./components/AdminNavbar";
+import HomeNavbar from "./components/HomeNavbar";
+import DailyLog from "./components/DailyLog";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("access_token");
@@ -29,7 +31,6 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -53,6 +54,11 @@ function App() {
         <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
 
         <Route path="/payout" element={<ProtectedRoute><Payout /></ProtectedRoute>} />
+        <Route path="/dailylog" element={<ProtectedRoute><DailyLog /></ProtectedRoute>} />
+
+        <Route path="/AdminNavbar" element={<ProtectedRoute><Navbar /></ProtectedRoute>} />
+        <Route path="/navbar" element={<ProtectedRoute><HomeNavbar /></ProtectedRoute>} />
+
 
       </Routes>
     </Router>

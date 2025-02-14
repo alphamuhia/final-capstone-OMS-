@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta, date
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import (
     Department, 
     Task, 
@@ -185,13 +186,12 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ('employee', 'status', 'created_at')
 
 class AdvancePaymentRequestSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    
     class Meta:
         model = AdvancePaymentRequest
-        fields = ('amount', 'reason')
-    
-    def create(self, validated_data):
-        validated_data.pop('reason', None)
-        return AdvancePaymentRequest.objects.create(**validated_data)
+        fields = ['id', 'user', 'amount', 'reason', 'status', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user', 'status', 'created_at', 'updated_at']
 
 
 # class AdvancePaymentRequestSerializer(serializers.ModelSerializer):
@@ -230,3 +230,18 @@ class DailyLogSerializer(serializers.ModelSerializer):
         validated_data["date"] = today_date  
 
         return DailyLog.objects.create(**validated_data)
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["username"] = user.username
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data["id"] = self.user.id
+        data["role"] = getattr(self.user, "role", None)  
+        data["is_superuser"] = self.user.is_superuser
+        return data

@@ -5,6 +5,15 @@
     font-family: 'Arial', sans-serif;
     color: #333;
   }
+
+  /* .ref-btn{
+    align-self: center;
+    background-color: #ff0000; 
+  } */
+
+  /* .ref-btn:hover {
+    background-color: #ad0000;
+  } */
   
   .admin-dashboard nav {
     background-color: #ffffff;

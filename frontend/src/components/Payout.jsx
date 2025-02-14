@@ -88,6 +88,7 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import './styling/Payout.css'; 
+import AdminNavbar from './AdminNavbar';
 
 const stripePromise = loadStripe('pk_test_51Qrze7E0j5VdeT2CDBj1hXIjylBtDdPS8FbqX7tbWr8dz1YCwFBlGNcoUYB0GxYE0Co5692mJ1O0AW2rHJHfm4Ww00LtcCm6Ex');
 
@@ -142,6 +143,8 @@ const PayoutForm = ({ amount }) => {
   };
 
   return (
+    <>
+    <AdminNavbar />
     <div className="payout-form">
       <h2>Credit Card Payment Form</h2>
       {error && <div className="error">{error}</div>}
@@ -163,6 +166,7 @@ const PayoutForm = ({ amount }) => {
         </form>
       )}
     </div>
+    </>
   );
 };
 

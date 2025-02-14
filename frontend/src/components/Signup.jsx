@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./styling/Signup.css";
+import HomeNavbar from "./HomeNavbar";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -39,45 +40,48 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup-container">
-      <h2>Signup</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
-        <select name="role" onChange={handleChange}>
-          <option value="employee">Employee</option>
-          <option value="manager">Manager</option>
-        </select>
-        <select name="department" onChange={handleChange} required>
-          <option value="">Select Department</option>
-          {departments.map((dept) => (
-            <option key={dept.id} value={dept.id}>
-              {dept.name}
-            </option>
-          ))}
-        </select>
-        <button type="submit">Sign Up</button>
-      </form>
-    </div>
+    <>
+    <HomeNavbar />
+      <div className="signup-container">
+        <h2>Signup</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+            required
+          />
+          <select name="role" onChange={handleChange}>
+            <option value="employee">Employee</option>
+            <option value="manager">Manager</option>
+          </select>
+          <select name="department" onChange={handleChange} required>
+            <option value="">Select Department</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
+          </select>
+          <button type="submit">Sign Up</button>
+        </form>
+      </div>
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import AdminNavbar from "./AdminNavbar";
 import "./styling/Employee.css";
 
 const Employee = () => {
@@ -148,12 +148,9 @@ const Employee = () => {
   }, []);
 
   return (
+    <>
+    <AdminNavbar />
     <div className="employee-container">
-      <nav>
-        <li>
-          <Link to="/admin">Dashboard</Link>
-        </li>
-      </nav>
       <h2>All Employees</h2>
 
       {loading && <p>Loading employees...</p>}
@@ -272,6 +269,7 @@ const Employee = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

@@ -21,11 +21,17 @@ from .views import (
     SalaryDetailView,
     DailyLogListCreateAPIView,
     LeaveRequestViewSet,
-    AdvancePaymentRequestViewSet,
+    AdvancePaymentRequestListCreateAPIView,
     UserViewSet,
     NotificationListCreateAPIView,
     RoleViewSet,
+    CustomTokenObtainPairView,
     CreatePaymentIntent,
+)
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
 )
 
 router = DefaultRouter()
@@ -33,12 +39,13 @@ router.register(r'roles', RoleViewSet)
 router.register(r'users-b', UserViewSet)
 router.register(r'payrolls', PayrollViewSet, basename='payrolls')
 router.register(r'leave-requests', LeaveRequestViewSet)
-router.register(r'advance-payment-requests', AdvancePaymentRequestViewSet)
+
 
 urlpatterns = router.urls + [
     path('register/', RegisterView.as_view(), name='register'),
     path("profile/", UserProfileView.as_view(), name="user-profile"),
     path('login/', LoginView.as_view(), name='login'),
+    path("login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path('users/', views.user_list, name="all-users"),
     path('users/<int:user_id>/', views.user_list, name='user-detail'),
     path('users/department/<int:department>/', views.user_list_by_department, name="all-users-by-department"),
@@ -55,13 +62,16 @@ urlpatterns = router.urls + [
     path('salaries/', SalaryListCreateView.as_view(), name='salary-list'),
     path('salaries/<int:pk>/', SalaryDetailView.as_view(), name='salary-detail'),
     path('leave-requests/<int:pk>/approve/', LeaveRequestViewSet.as_view({'post': 'approve'}), name='approve-leave-request'),
-    path('advance-payment-requests/<int:pk>/approve/', AdvancePaymentRequestViewSet.as_view({'post': 'approve'}), name='approve-advance-payment-request'),
+    path('advance-payment-requests/', AdvancePaymentRequestListCreateAPIView.as_view(), name='advance-payment-request'),
     path('daily-log/', DailyLogListCreateAPIView.as_view(), name='daily-log-create'),
     path('notifications/', NotificationListCreateAPIView.as_view(), name='notification-list-create'),
     path('notifications/<int:pk>/', NotificationRetrieveUpdateDestroyAPIView.as_view(), name='notification-retrieve-update'),
 
     path('createpayment/', CreatePaymentIntent.as_view(), name='create-payment-intent'),
     # path('create-payment/', CreatePaymentIntent.as_view(), name='create-payment-intent'),
+
+    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
 

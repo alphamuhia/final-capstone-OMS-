@@ -15,7 +15,6 @@ function SalaryEdit({ salary, onUpdate, onCancel, onDelete }) {
     salary.payment_method || paymentMethodOptions[0].value
   );
 
-  // Handler for updating (editing) the salary
   const handleSubmit = (e) => {
     e.preventDefault();
     const updatedSalary = {
@@ -40,7 +39,6 @@ function SalaryEdit({ salary, onUpdate, onCancel, onDelete }) {
       .catch(error => console.error('Error updating salary:', error));
   };
 
-  // Handler for deleting the salary
   const handleDelete = () => {
     if (!window.confirm('Are you sure you want to delete this salary?')) {
       return;
@@ -64,6 +62,7 @@ function SalaryEdit({ salary, onUpdate, onCancel, onDelete }) {
   };
 
   return (
+    <>
     <div className="salary-edit-container">
       <h2>Edit Salary</h2>
       <form className="salary-edit-form" onSubmit={handleSubmit}>
@@ -119,6 +118,7 @@ function SalaryEdit({ salary, onUpdate, onCancel, onDelete }) {
         </div>
       </form>
     </div>
+    </>
   );
 }
 

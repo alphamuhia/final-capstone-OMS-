@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './styling/AddSalary.css';
 
 function AddSalary() {
@@ -26,8 +27,10 @@ function AddSalary() {
     ])
       .then(([usersData, salariesData]) => {
         const salaryList = salariesData.results || salariesData;
+        // Create a set of user IDs who already have a salary record
         const usersWithSalary = new Set(salaryList.map(salary => salary.user));
-        const availableUsers = usersData.filter(user => !usersWithSalary.has(user.username));
+        // Filter out users based on their id
+        const availableUsers = usersData.filter(user => !usersWithSalary.has(user.id));
         setUsers(availableUsers);
         if (availableUsers.length > 0) {
           setSelectedUser(availableUsers[0].id);
@@ -81,6 +84,7 @@ function AddSalary() {
         if (paymentMethods.length > 0) {
           setPaymentMethod(paymentMethods[0].value);
         }
+        // Remove the user that just got a salary from the list
         const updatedUsers = users.filter(user => user.id !== parseInt(selectedUser, 10));
         setUsers(updatedUsers);
         if (updatedUsers.length > 0) {
@@ -163,6 +167,7 @@ function AddSalary() {
           Add Salary
         </button>
       </form>
+      <Link to="/salary" className='back-btn'><button>Back</button></Link>
     </div>
   );
 }

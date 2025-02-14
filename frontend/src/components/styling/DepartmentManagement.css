@@ -1,135 +1,123 @@
 .department-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    padding: 1rem;
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-  }
-  
-  nav li {
-    display: inline-block;
-    margin-right: 10px;
-    list-style: none;
-  }
-  
-  nav li a {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
-  }
-  
-  nav li a:hover {
-    text-decoration: underline;
-  }
-  
-  h1 {
-    color: #333;
-    margin: 1rem 0;
-    text-align: center;
-  }
-  
-  .error {
-    color: red;
-    text-align: center;
-    margin: 1rem 0;
-  }
-  
-  .department-list {
-    flex: 1 1 300px;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .department-list h2 {
-    margin-bottom: 1rem;
-    color: #333;
-  }
-  
-  .department-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .department-list ul li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .department-list ul li:last-child {
-    border-bottom: none;
-  }
-  
-  .department-list ul li button {
-    margin-left: 0.5rem;
-    padding: 5px 10px;
-    border: none;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .department-list ul li button:hover {
-    background-color: #0056b3;
-  }
-  
-  .department-list input[type="text"] {
-    width: calc(100% - 20px);
-    padding: 8px;
-    margin-top: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .department-list button.add-department {
-    margin-top: 10px;
-    width: 100%;
-    padding: 10px;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .department-list button.add-department:hover {
-    background-color: #218838;
-  }
-  
-  .department-details {
-    flex: 2 1 300px;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .department-details .department-card h2 {
-    color: #333;
-    margin-bottom: 1rem;
-  }
-  
-  .department-details ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .department-details ul li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .department-details ul li:last-child {
-    border-bottom: none;
-  }
-  
+  padding: 20px;
+}
+
+.department-list {
+  margin: 20px auto;
+  /* max-width: 600px; */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.department-list h2 {
+  margin-bottom: 15px;
+}
+
+.title{
+  text-align: center;
+}
+
+.department-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.department-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.department-list li:last-child {
+  border-bottom: none;
+}
+
+.department-list span {
+  display: flex;
+  gap: 10px;
+}
+
+.department-list button {
+  padding: 5px 10px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.department-list button:hover {
+  background: #0056b3;
+}
+
+.add-department {
+  margin-top: 10px;
+  background: #28a745;
+}
+
+.add-department:hover {
+  background: #218838;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.modal-content li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgb(95, 95, 95);
+  border: none;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 30px;
+  text-align: center;
+}
+
+.modal-close:hover {
+  background: rgb(59, 57, 57);
+}

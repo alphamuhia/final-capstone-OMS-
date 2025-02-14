@@ -45,6 +45,7 @@ const DepartmentManagement = () => {
   };
 
   return (
+    <>
     <div className="department-management">
       <h1>Department Management</h1>
       <form onSubmit={handleAddDepartment}>
@@ -66,6 +67,7 @@ const DepartmentManagement = () => {
         ))}
       </ul>
     </div>
+    </>
   );
 };
 

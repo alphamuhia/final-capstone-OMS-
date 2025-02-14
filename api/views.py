@@ -3,12 +3,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from datetime import datetime, date
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
+from django.core.mail import send_mail
 from rest_framework.exceptions import PermissionDenied
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.db.models import Q
 from django.conf import settings
 import stripe
@@ -49,7 +52,8 @@ from .serializers import (
     RoleSerializer,
     DailyLogSerializer,
     NotificationSerializer,
-    SendNotificationSerializer,
+    # SendNotificationSerializer,
+    CustomTokenObtainPairSerializer,
 )
 
 User = get_user_model()
@@ -150,11 +154,11 @@ class LoginView(APIView):
 
     def get(self, request):
         print(f"User: {request.user}, Authenticated: {request.user.is_authenticated}")
-        """Check if the user is authenticated and return user details"""
+        
         if request.user.is_authenticated:
             return Response({
                 "username": request.user.username,
-                "role": request.user.role,
+                "role": getattr(request.user, "role", None), 
                 "is_superuser": request.user.is_superuser,
             })
         return Response({"error": "Not authenticated"}, status=401)
@@ -174,7 +178,7 @@ class LoginView(APIView):
             response_data = {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
-                "role": user.role if hasattr(user, "role") else None,
+                "role": getattr(user, "role", None),
                 "is_superuser": user.is_superuser,
             }
 
@@ -184,6 +188,47 @@ class LoginView(APIView):
             return Response(response_data)
         
         return Response({"error": "Invalid credentials"}, status=401)
+
+# class LoginView(APIView):
+#     authentication_classes = [SessionAuthentication, TokenAuthentication]
+#     permission_classes = [AllowAny]
+
+#     def get(self, request):
+#         print(f"User: {request.user}, Authenticated: {request.user.is_authenticated}")
+#         """Check if the user is authenticated and return user details"""
+#         if request.user.is_authenticated:
+#             return Response({
+#                 "username": request.user.username,
+#                 "role": request.user.role,
+#                 "is_superuser": request.user.is_superuser,
+#             })
+#         return Response({"error": "Not authenticated"}, status=401)
+
+#     def post(self, request):
+#         username = request.data.get("username")
+#         password = request.data.get("password")
+
+#         user = authenticate(username=username, password=password)
+
+#         if user:
+#             if not user.is_approved and not user.is_superuser:
+#                 return Response({"error": "Account not approved by admin"}, status=403)
+
+#             refresh = RefreshToken.for_user(user)
+            
+#             response_data = {
+#                 "refresh": str(refresh),
+#                 "access": str(refresh.access_token),
+#                 "role": user.role if hasattr(user, "role") else None,
+#                 "is_superuser": user.is_superuser,
+#             }
+
+#             if user.is_superuser:
+#                 response_data["redirect_to"] = "/admin"  
+
+#             return Response(response_data)
+        
+#         return Response({"error": "Invalid credentials"}, status=401)
 
 # Custom permission to allow only superusers
 class IsSuperUser(BasePermission):
@@ -407,6 +452,7 @@ class DailyLogListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+
 class TaskReportView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -578,13 +624,15 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(employee=self.request.user)
 
-class AdvancePaymentRequestViewSet(viewsets.ModelViewSet):
-    queryset = AdvancePaymentRequest.objects.all()
+class AdvancePaymentRequestListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = AdvancePaymentRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    
+    def get_queryset(self):
+        return AdvancePaymentRequest.objects.filter(user=self.request.user)
+    
     def perform_create(self, serializer):
-        serializer.save(employee=self.request.user)
+        serializer.save(user=self.request.user)
 
 # class AdvancePaymentRequestViewSet(viewsets.ModelViewSet):
 #     queryset = AdvancePaymentRequest.objects.all()
@@ -626,3 +674,6 @@ class CreatePaymentIntent(APIView):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

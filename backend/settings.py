@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from django.contrib import admin
-# from datetime import timedelta
+from datetime import timedelta
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -50,7 +50,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'muhiaalpha@gmail.com'
-EMAIL_HOST_PASSWORD = 'petermuhia2580'
+EMAIL_HOST_PASSWORD = 'petermuhia'
 
 
 AUTH_USER_MODEL = 'api.User'
@@ -61,6 +61,16 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": 'django-insecure-n%g7=hiivm2ufoen1du)af0-bi^3ov%-cja^j^0q^#3(^71ze)',  
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 STRIPE_SECRET_KEY = "sk_test_51Qrze7E0j5VdeT2CRJn2gwqQBwvj7yvpXQBgUtn2u1n30sTyjSjhNSMjhNRxDAfvDEm0ORpZ7WmtZWcg2AS064Fe00KfhnKqdL"

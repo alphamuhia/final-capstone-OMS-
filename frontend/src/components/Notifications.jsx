@@ -1,5 +1,6 @@
 // import React, { useEffect, useState } from 'react';
 import React from "react";
+import AdminNavbar from "./AdminNavbar";
 
 const Notifications = () => {
   // const [notifications, setNotifications] = useState([]);
@@ -93,6 +94,8 @@ const Notifications = () => {
   // };
 
   return (
+    <>
+    <AdminNavbar />
     <div>
       <h2>Notifications</h2>
       <h3>comming soon</h3>
@@ -145,6 +148,7 @@ const Notifications = () => {
         </ul>
       )} */}
     </div>
+    </>
   );
 };
 
