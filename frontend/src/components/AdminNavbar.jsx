@@ -27,7 +27,7 @@ const AdminNavbar = () => {
           <Link to="/salary" className="nav-link">Payroll</Link>
         </li> 
         <li className="nav-item">
-          {/* <Link to="/notifications" className="nav-link">Notifications</Link> */}
+          <Link to="/dailylog" className="nav-link">Daily Logs</Link>
         </li> 
         <li className="nav-item logout-item">
           <button className="logout" onClick={logout}>Logout</button>

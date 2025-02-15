@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./styling/DailyLog.css"; // Import the custom CSS file
+import AdminNavbar from "./AdminNavbar";
 
 const DailyLog = () => {
   const [dailyLogs, setDailyLogs] = useState([]);
@@ -114,16 +115,13 @@ const DailyLog = () => {
     }
   };
 
-  // Filter out logs with duplicate user IDs, keeping only the log with fewer hours worked.
   const getFilteredLogs = () => {
     const filtered = dailyLogs.reduce((acc, log) => {
       const userId = typeof log.user === "object" ? log.user.id : log.user;
       const currentLogHours = Number(log.hours_worked);
-      // If no log for the user exists yet, add it.
       if (!acc[userId]) {
         acc[userId] = log;
       } else {
-        // If the current log has fewer hours than the stored one, update it.
         const storedLogHours = Number(acc[userId].hours_worked);
         if (currentLogHours < storedLogHours) {
           acc[userId] = log;
@@ -134,10 +132,11 @@ const DailyLog = () => {
     return Object.values(filtered);
   };
 
-  // Get the logs to display (filtered)
   const logsToDisplay = getFilteredLogs();
 
   return (
+    <>
+    <AdminNavbar />
     <div className="daily-log-container">
       <h2>Daily Logs from All Users</h2>
       {error && <div className="error-message">{error}</div>}
@@ -187,6 +186,7 @@ const DailyLog = () => {
         <p>No daily logs available.</p>
       )}
     </div>
+    </>
   );
 };
 

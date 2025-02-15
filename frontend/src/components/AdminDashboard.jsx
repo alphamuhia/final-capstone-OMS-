@@ -182,13 +182,13 @@ const AdminDashboard = () => {
               <button>Daily Logs</button>
             </Link>
           </section>
-          <section>
+          {/* <section>
             <h2>Notifications and Alerts</h2>
             <p>Get alerts for important deadlines.</p>
             <Link to="/notifications">
               <button>View Alerts</button>
             </Link>
-          </section>
+          </section> */}
         </div>
       </div>
     </>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-// import "./AttendanceTable.css";
 
 const AttendanceTable = () => {
   const [attendances, setAttendances] = useState([]);
   const token = localStorage.getItem("access_token");
+  const loggedInUserId = localStorage.getItem("user_id"); // Assuming user_id is stored in local storage
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/daily-log/", {
@@ -18,9 +18,24 @@ const AttendanceTable = () => {
         }
         return response.json();
       })
-      .then((data) => setAttendances(data))
+      .then((data) => {
+        // Filter logs to only include those of the logged-in user
+        const userLogs = data.filter((record) => record.user_id == loggedInUserId);
+
+        // Remove duplicate logs, keeping only the first log per day
+        const uniqueRecords = Object.values(
+          userLogs.reduce((acc, record) => {
+            if (!acc[record.date]) {
+              acc[record.date] = record;
+            }
+            return acc;
+          }, {})
+        );
+
+        setAttendances(uniqueRecords);
+      })
       .catch((error) => console.error("Error fetching attendance:", error));
-  }, [token]);
+  }, [token, loggedInUserId]);
 
   return (
     <div className="attendance-table-container">

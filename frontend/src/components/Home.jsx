@@ -10,7 +10,7 @@ const Home = () => {
       <div>
         <section className="hero">
           <div className="hero-content">
-            <h1>Welcome to Office Management Solutions</h1>
+            <h1>Welcome to Employee Management Solutions</h1>
             <p>Streamline your office tasks with our cutting-edge management system.</p>
             <Link to="/signup" className="cta-button">Get Started</Link>
           </div>
@@ -20,8 +20,8 @@ const Home = () => {
           <div className="container">
             <h2>About Us</h2>
             <p>
-              At Office Management Solutions, we help businesses optimize their workflow by providing an
-              all-in-one platform for employee and task management.
+              At Employee Management Solutions, we help businesses optimize their workflow by providing an
+              all-in-one platform for business owner to manage his employees
             </p>
           </div>
         </section>
@@ -32,7 +32,7 @@ const Home = () => {
             <div className="service-grid">
               <div className="service-card">
                 <h3>Admin Overview</h3>
-                <p>Automate repetitive office tasks and increase efficiency.</p>
+                <p>Automate repetitive office work and increase efficiency.</p>
               </div>
               <div className="service-card">
                 <h3>Employee Management</h3>

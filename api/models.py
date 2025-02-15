@@ -22,6 +22,8 @@ class User(AbstractUser):
         ('admin', 'Admin'),
         ('manager', 'Manager'),
         ('employee', 'Employee'),
+        ('assistant manager', 'Assistant Manager'),
+        ('team leader', 'Team Leader')
     ]
     
     email = models.EmailField(max_length=90, unique=True)

@@ -21,6 +21,7 @@ import Payout from "./components/Payout";
 import Navbar from "./components/AdminNavbar";
 import HomeNavbar from "./components/HomeNavbar";
 import DailyLog from "./components/DailyLog";
+import ProfileSection from "./components/ProfileSection";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("access_token");
@@ -58,6 +59,7 @@ function App() {
 
         <Route path="/AdminNavbar" element={<ProtectedRoute><Navbar /></ProtectedRoute>} />
         <Route path="/navbar" element={<ProtectedRoute><HomeNavbar /></ProtectedRoute>} />
+        <Route path="/Profile-edit" element={<ProtectedRoute><ProfileSection /></ProtectedRoute>} />
 
 
       </Routes>

@@ -158,11 +158,11 @@ const PayoutForm = ({ amount }) => {
             - Expiration Date: Any future date (e.g., 12/34)
             - CVC: Any three digits (e.g., 123)
           */}
-          {/* <CardElement options={{ hidePostalCode: true }} />
+          <CardElement options={{ hidePostalCode: true }} />
           <button type="submit" disabled={!stripe || processing || !clientSecret}>
             {processing ? 'Processing…' : `Pay $${(amount / 100).toFixed(2)}`}
-          </button> */}
-          <h1>Coming Soon</h1>
+          </button>
+          {/* <h1>Coming Soon</h1> */}
         </form>
       )}
     </div>
