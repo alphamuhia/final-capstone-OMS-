@@ -207,6 +207,7 @@ const ManagerDashboard = () => {
         <button className="logout" onClick={logout}>Logout</button>
       </nav>
       <div className="manager-dashboard">
+      <h1>Manager Dashboard</h1>
         {/* Manager Profile Section */}
         <div className="manager-profile">
           <h3>Manager Profile</h3>

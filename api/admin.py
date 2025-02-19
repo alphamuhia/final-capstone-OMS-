@@ -7,7 +7,6 @@ class CustomUserAdmin(UserAdmin):
     model = User
     list_display = ('username', 'email', 'role', 'department', 'is_superuser', 'is_approved')
     list_filter = ('role', 'is_superuser', 'is_approved')
-    actions = ['approve_users']
 
     def approve_users(self, request, queryset):
         if not request.user.is_superuser:

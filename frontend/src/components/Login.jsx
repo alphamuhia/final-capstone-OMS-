@@ -25,13 +25,10 @@ const Login = () => {
     console.log("Login Response:", data);
 
     if (response.ok) {
-      // Store tokens in localStorage
       localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
       localStorage.setItem("userid", data.id);
       alert("Login successful!");
 
-      // Role-based navigation
       if (data.role === null) {
         if (data.is_superuser) {
           navigate("/admin");
@@ -39,8 +36,10 @@ const Login = () => {
           alert("User role is missing. Please contact the admin.");
           navigate("/");
         }
+      } else if (data.role.toLowerCase() === "manager") {
+        navigate("/manager");
       } else if (
-        ["employee", "manager", "team leader", "assistant manager"].includes(data.role.toLowerCase())
+        ["employee", "team leader", "assistant manager"].includes(data.role.toLowerCase())
       ) {
         navigate("/employee");
       } else {
